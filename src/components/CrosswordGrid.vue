@@ -126,7 +126,11 @@ const cells = computed<RenderCell[]>(() => {
   background: #ece4d5;
   border: 1px solid var(--color-line);
   border-radius: 3px;
-  font-weight: 600;
   color: var(--color-ink);
+}
+
+/* 提示字与用户填入的字：字体完全一致，仅靠底色区分 */
+.cell__char {
+  font-weight: 400;
 }
 </style>
