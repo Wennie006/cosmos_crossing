@@ -64,7 +64,7 @@ describe('内置三关校验通过', () => {
 
 describe('派生数据', () => {
   it('一万小时：交叉与待填数量', () => {
-    const derived = derivePuzzle(loadPuzzle('yiwanxiaoshi.json'))
+    const derived = derivePuzzle(loadPuzzle('1.json'))
     expect(derived.intersections.length).toBe(4)
     expect(derived.blankCells.length).toBe(22)
     expect(derived.entries.map((e) => e.id)).toEqual(['A1', 'V1', 'V2', 'V3', 'V4'])
@@ -72,7 +72,7 @@ describe('派生数据', () => {
 })
 
 describe('校验能捕获错误', () => {
-  const base = () => loadPuzzle('yiwanxiaoshi.json')
+  const base = () => loadPuzzle('1.json')
 
   it('交叉格字符冲突', () => {
     const spec = clone(base())

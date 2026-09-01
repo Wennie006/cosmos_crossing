@@ -11,29 +11,34 @@ const modules = import.meta.glob<{ default: PuzzleSpec }>('../puzzles/*.json', {
 
 const specs: PuzzleSpec[] = Object.values(modules)
   .map((m) => m.default)
-  .sort((a, b) => a.puzzleId.localeCompare(b.puzzleId))
+  .sort((a, b) => a.puzzleId - b.puzzleId)
 
-/** 谜题库中全部 puzzleId（稳定排序）。 */
-export const puzzleIds: readonly string[] = specs.map((s) => s.puzzleId)
+/** 谜题库中全部 puzzleId（按编号升序）。 */
+export const puzzleIds: readonly number[] = specs.map((s) => s.puzzleId)
 
 const specById = new Map(specs.map((s) => [s.puzzleId, s]))
 
-export function getPuzzleSpec(id: string): PuzzleSpec {
+export function getPuzzleSpec(id: number): PuzzleSpec {
   const spec = specById.get(id)
   if (!spec) throw new Error(`未知 puzzleId: ${id}`)
   return spec
 }
 
-export function getDerivedPuzzle(id: string): DerivedPuzzle {
+export function getDerivedPuzzle(id: number): DerivedPuzzle {
   return derivePuzzle(getPuzzleSpec(id))
 }
 
+/** 片段音频路径：优先用 song.clipSrc，否则默认 assets/clips/{puzzleId}.mp3。 */
+export function clipSrcOf(spec: PuzzleSpec): string {
+  return spec.song.clipSrc ?? `assets/clips/${spec.puzzleId}.mp3`
+}
+
 /** 首次进入：均匀随机选一关。 */
-export function pickInitialPuzzle(randomInt?: RandomInt): string {
+export function pickInitialPuzzle(randomInt?: RandomInt): number {
   return pickInitialPuzzleId(puzzleIds, randomInt)
 }
 
 /** 再来一局：从 puzzleId 不等于 currentId 的谜题中均匀随机选一关。 */
-export function pickNextPuzzle(currentId: string, randomInt?: RandomInt): string {
+export function pickNextPuzzle(currentId: number, randomInt?: RandomInt): number {
   return pickNextPuzzleId(puzzleIds, currentId, randomInt)
 }

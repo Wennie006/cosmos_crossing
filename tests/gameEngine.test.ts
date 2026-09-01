@@ -13,7 +13,7 @@ const puzzlesDir = resolve(
   '../src/puzzles',
 )
 const spec = JSON.parse(
-  readFileSync(join(puzzlesDir, 'yiwanxiaoshi.json'), 'utf8'),
+  readFileSync(join(puzzlesDir, '1.json'), 'utf8'),
 ) as PuzzleSpec
 const derived: DerivedPuzzle = derivePuzzle(spec)
 

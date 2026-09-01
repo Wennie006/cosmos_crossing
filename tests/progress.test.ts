@@ -29,7 +29,7 @@ class FakeStorage implements Storage {
 }
 
 const sample: ProgressRecord = {
-  puzzleId: 'yiwanxiaoshi',
+  puzzleId: 1,
   gameState: {
     tray: [{ id: 't0-让', char: '让' }],
     fills: { '4,0': '让' },

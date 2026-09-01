@@ -1,11 +1,13 @@
 # 填字谜题生成算法设计
 
-- 版本：v0.2（MVP）
-- 日期：2026-09-01
+- 版本：v0.3（MVP）
+- 日期：2026-09-02
 - 关联：`docs/PRD.md`
-- 状态：待确认
+- 状态：已对齐
 
-本版相对 v0.1 的变更：移除全部比喻性命名（改用规范术语）；`id` 字段更名为 `puzzleId` 并要求全局唯一；新增「再来一局」的谜题选择逻辑；补入三关示例数据。
+变更历史：
+- v0.2：移除全部比喻性命名（改用规范术语）；`id` → `puzzleId`；新增「再来一局」选择逻辑；补入三关示例。
+- v0.3：`puzzleId` 改为**整数编号**（由知识库分配）；`clipSrc`/`clipDuration` 改为可省略（片段默认 `assets/clips/{puzzleId}.mp3`，为 **MP3 音频**，非 MP4）；文件名统一为 `{puzzleId}.json`。
 
 ---
 
@@ -68,12 +70,12 @@
 
 ```jsonc
 {
-  "puzzleId": "yiwanxiaoshi",          // 全局唯一，稳定，kebab-case
+  "puzzleId": 1,                        // 整数编号，见下方「编号规则」
   "song": {
     "title": "一万小时",
-    "artist": "宇宙人",
-    "clipSrc": "assets/clips/yiwanxiaoshi.mp4",
-    "clipDuration": 15
+    "artist": "宇宙人"
+    // clipSrc 省略 → 默认 assets/clips/{puzzleId}.mp3
+    // clipDuration 省略 → 按 15 秒处理
   },
   "rawLyrics": "需要多久的时间\n平地才能搭起一座山\n…",   // 与 curatedLines 二选一
   "curatedLines": ["让我完成有你的世界", "我要变成你的树", "…"], // 与 rawLyrics 二选一，优先
@@ -84,6 +86,15 @@
   "traySeed": 1                         // 字盘打乱的伪随机种子，独立于 layoutSeed
 }
 ```
+
+**编号规则**：`puzzleId` 是整数，**由歌词知识库分配**——知识库里每首歌前面标一个序号，
+该序号就是它的 `puzzleId`。据此：
+
+- puzzle JSON 文件名 = `src/puzzles/{puzzleId}.json`
+- 15 秒片段（MP3 音频）文件名 = `src/assets/clips/{puzzleId}.mp3`（`clipSrc` 无需在 JSON 里写）
+- 加载顺序按 `puzzleId` 升序；「再来一局」在 `puzzleId` 之间随机
+
+新增一首歌：知识库给它下一个序号 `n` → 产出 `n.json`、放入 `n.mp3`，不必再手写文件名或路径。
 
 歌词文件按行切分后碎句多（副歌整段重复、单句被换行拆开），MVP 优先用 `curatedLines` 提供已筛选的完整行；`rawLyrics` 走第 3 节的自动预处理，仅用于生成初稿。
 
@@ -278,12 +289,10 @@ tray         = seededShuffle(trayCorrect ∪ distractors, traySeed)
 
 ```jsonc
 {
-  "puzzleId": "yiwanxiaoshi",
+  "puzzleId": 1,
   "song": {
     "title": "一万小时",
-    "artist": "宇宙人",
-    "clipSrc": "assets/clips/yiwanxiaoshi.mp4",
-    "clipDuration": 15
+    "artist": "宇宙人"
   },
   "grid": { "rows": 11, "cols": 9 },
   "entries": [
@@ -310,7 +319,8 @@ tray         = seededShuffle(trayCorrect ∪ distractors, traySeed)
 
 | 字段 | 说明 |
 |---|---|
-| `puzzleId` | 全局唯一、稳定的字符串标识。谜题库内不得重复。用于「再来一局」的选择与 `sessionStorage` 进度键。 |
+| `puzzleId` | 整数编号，由知识库分配（见第 2 节「编号规则」）。谜题库内不得重复。文件名 = `{puzzleId}.json`，片段 = `{puzzleId}.mp3`。 |
+| `song.clipSrc` / `song.clipDuration` | 均可省略：`clipSrc` 默认 `assets/clips/{puzzleId}.mp3`，`clipDuration` 默认 15。 |
 | `entries[].id` | 谜题内的局部标识（如 `A1`、`V1`），仅用于渲染与调试，不要求跨谜题唯一。 |
 | `entries` | 唯一权威来源。交叉格、答案、字盘均由它推导。`entries[0]` 为第一条词条。 |
 | `prefilled` | 提示字格坐标。由第 6.3 节产出，作者可手工调整后重跑校验。 |
@@ -328,8 +338,8 @@ tray         = seededShuffle(trayCorrect ∪ distractors, traySeed)
   2. 若 `candidates` 非空，从中按均匀分布随机选一个加载。
   3. 若 `candidates` 为空（谜题库只有一个谜题），重新加载 `currentId`。
 - **随机源**：`Math.random()`，不要求可复现。
-- **加载新谜题时重置**：网格填写状态清空；计时器 `startEpoch` 清空并置为未启动；`hintCount` 归零；`sessionStorage` 中以 `puzzleId` 为键的进度记录替换为新谜题的空记录。
-- **进度记录键**：`sessionStorage` 中进度按 `puzzleId` 存储，刷新页面时据此恢复对应谜题。
+- **加载新谜题时重置**：网格填写状态清空；计时器 `startEpoch` 清空并置为未启动；`hintCount` 归零。
+- **进度持久化**：`sessionStorage` 中固定一条进度记录（键 `cosmos:progress`），记录内含 `puzzleId`；刷新页面时读回，`puzzleId` 与谜题库匹配才恢复，否则按首次进入处理。
 
 ---
 
@@ -337,7 +347,7 @@ tray         = seededShuffle(trayCorrect ∪ distractors, traySeed)
 
 三关均使用歌词文件中的完整行，满足第 0.2 节的结构约束。坐标为归一化后的最终值。
 
-### 12.1 `puzzleId: "yiwanxiaoshi"` —《一万小时》
+### 12.1 `puzzleId: 1` —《一万小时》
 
 网格 11 行 × 9 列。5 条词条，4 个交叉。
 
@@ -367,7 +377,7 @@ tray         = seededShuffle(trayCorrect ∪ distractors, traySeed)
  r10  ·  树 ·  ·  ·  ·  ·  ·  ·
 ```
 
-### 12.2 `puzzleId: "ruguo-women-hai-zai-yiqi"` —《如果我们还在一起》
+### 12.2 `puzzleId: 2` —《如果我们还在一起》
 
 > v2（2026-09-01 修订）：歌词知识库更正了断行（原断行把「知道你也在意我」错误拆成
 > 「知道你也在意」/「我整夜都无法闭上眼睛」两行）。本节按更正后的歌词重新设计，
@@ -401,7 +411,7 @@ tray         = seededShuffle(trayCorrect ∪ distractors, traySeed)
  r10  里 ·  ·  ·  ·  ·  ·  ·  ·  ·  ·
 ```
 
-### 12.3 `puzzleId: "wangqian"` —《往前》
+### 12.3 `puzzleId: 3` —《往前》
 
 网格 10 行 × 10 列。6 条词条，5 个交叉。A2 为附加横向词条。
 

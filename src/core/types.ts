@@ -23,15 +23,22 @@ export interface EntrySpec {
 export interface SongMeta {
   title: string
   artist: string
-  /** 15 秒片段的相对路径，如 "assets/clips/yiwanxiaoshi.mp4"。 */
-  clipSrc: string
-  clipDuration: number
+  /**
+   * 15 秒片段（MP3 音频）的相对路径。省略时默认 `assets/clips/{puzzleId}.mp3`，
+   * 即片段文件名 = puzzleId。见 clipSrcOf()。
+   */
+  clipSrc?: string
+  /** 片段时长（秒）。省略时按 15 处理。 */
+  clipDuration?: number
 }
 
 /** 一个谜题的完整定义（puzzle JSON 的结构）。 */
 export interface PuzzleSpec {
-  /** 全局唯一、稳定的标识。用于「再来一局」选择与 sessionStorage 进度键。 */
-  puzzleId: string
+  /**
+   * 全局唯一的整数编号，由歌词知识库分配（每首歌前面标的序号）。
+   * 决定加载顺序、片段文件名（{puzzleId}.mp3）、以及「再来一局」的选择。
+   */
+  puzzleId: number
   song: SongMeta
   grid: { rows: number; cols: number }
   /** entries[0] 约定为第一条词条（direction 必为 horizontal）。 */

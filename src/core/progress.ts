@@ -8,7 +8,7 @@ const KEY = 'cosmos:progress'
 
 export interface ProgressRecord {
   /** 用于校验恢复的是同一关。 */
-  puzzleId: string
+  puzzleId: number
   gameState: GameState
   timer: TimerState
   hintCount: number
@@ -40,7 +40,7 @@ export function loadProgress(): ProgressRecord | null {
     const raw = s.getItem(KEY)
     if (!raw) return null
     const rec = JSON.parse(raw) as ProgressRecord
-    if (!rec || typeof rec.puzzleId !== 'string' || !rec.gameState) return null
+    if (!rec || typeof rec.puzzleId !== 'number' || !rec.gameState) return null
     return rec
   } catch {
     return null

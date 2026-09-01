@@ -1,10 +1,8 @@
 {
-  "puzzleId": "wangqian",
+  "puzzleId": 3,
   "song": {
     "title": "往前",
-    "artist": "宇宙人",
-    "clipSrc": "assets/clips/wangqian.mp4",
-    "clipDuration": 15
+    "artist": "宇宙人"
   },
   "grid": { "rows": 10, "cols": 10 },
   "entries": [

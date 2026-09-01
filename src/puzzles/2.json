@@ -1,10 +1,8 @@
 {
-  "puzzleId": "ruguo-women-hai-zai-yiqi",
+  "puzzleId": 2,
   "song": {
     "title": "如果我们还在一起",
-    "artist": "宇宙人",
-    "clipSrc": "assets/clips/ruguo-women-hai-zai-yiqi.mp4",
-    "clipDuration": 15
+    "artist": "宇宙人"
   },
   "grid": { "rows": 11, "cols": 11 },
   "entries": [

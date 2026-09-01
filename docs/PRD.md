@@ -63,7 +63,7 @@
 ### 4.1 关卡与内容
 
 - MVP 至少包含 **2 个关卡**（2 首歌），以支持「再玩一次」切换到不同的歌。建议 3 首（已有 3 首歌词）。
-- 每个关卡数据独立，包含：歌手、歌词词条布局、预填格、15 秒片段 MP4、干扰字池。歌名仅用于内部标识与完成后展示。
+- 每个关卡数据独立，包含：`puzzleId`（整数编号）、歌手、歌词词条布局、预填格、干扰字池。15 秒片段为 MP3，命名 `{puzzleId}.mp3`。歌名仅用于内部标识与完成后展示。
 - 首次进入随机选一关；「再玩一次」从「非当前关卡」中随机选一关。
 - **不显示歌名、无逐句文字线索**（决策已定，原 §9-D1 关闭）。谜题为「粉丝凭歌词记忆 + 提示字 + 交叉约束还原」的识别/回忆类玩法。歌名在**完成弹窗**中揭晓。
 - 谜题的布局与提示字生成规则见 `docs/puzzle-generation.md`。
@@ -125,10 +125,11 @@
 - **完成弹窗内容**：
   - 标题文案（如「完成！」）+ 用时 `mm:ss`。
   - 一句彩蛋文案（可与关卡 / 歌曲绑定，关卡数据里配 `successText`，可选）。
-  - **歌曲片段播放器**：加载该关 15s MP4。
-    - 进入弹窗尝试自动播放（带声音）。
+  - **歌曲片段播放（音频）**：加载该关 15s MP3（`assets/clips/{puzzleId}.mp3`）。
+    - 进入弹窗尝试自动播放。
     - 自动播放被浏览器拦截时，显示一个「▶ 播放」按钮，用户点击后播放。
-    - 播放器带一个**小的「重播」控件**，用户可重复播放片段。
+    - 带一个**小的「重播」控件**，用户可重复播放片段。
+    - 无视频画面，播放期间背景图正常显示。
   - **「分享」按钮**：见 §4.9。
   - **「再玩一次」按钮**：见 §4.8。
 - 弹窗可关闭；关闭后停留在已完成的网格（只读展示态），主操作引导为「再玩一次」。
@@ -151,8 +152,8 @@
 
 ### 4.10 进度保留
 
-- 使用 `sessionStorage` 持久化当前关卡进度，以 `puzzleId` 为键：`puzzleId`、每个空格已填的字、`startEpoch`、`hintCount`。
-- **下拉刷新 / 页面 reload**：按 `puzzleId` 从 `sessionStorage` 恢复对应谜题，进度与计时继续。
+- 使用 `sessionStorage` 固定一条进度记录（键 `cosmos:progress`），内含 `puzzleId`（整数）、每个空格已填的字、`startEpoch`、`hintCount`。
+- **下拉刷新 / 页面 reload**：从 `sessionStorage` 读回，`puzzleId` 与谜题库匹配则恢复该谜题的进度与计时。
 - **关闭标签页 / 退出浏览器后重新进入**：`sessionStorage` 已清空，按全新会话处理（随机新关卡，计时未启动）。
 - **关卡选择与「再来一局」**：逻辑见 `docs/puzzle-generation.md` §11——首次进入从谜题库均匀随机选一关；「再来一局」从「`puzzleId` 不等于当前关」的谜题中均匀随机选一关，库中仅一关时重新加载当前关。
 - 已知边界：部分浏览器、微信内置浏览器在下拉刷新时也可能清空 `sessionStorage`，此时按全新会话处理。MVP 不额外兜底。
@@ -168,12 +169,12 @@
 - 已知风险：微信小程序对 `mix-blend-mode` 支持有限，转小程序阶段可能改为「预合成好的背景图」。H5 阶段不受影响。
 - 竖屏设计，不做横屏适配（横屏可用即可，不专门优化）。
 
-### 4.12 音频 / 视频片段
+### 4.12 音频片段
 
-- 每关一个 15 秒左右的 MP4（含音轨），文件由用户提供。
-- 仅在完成弹窗中播放。
+- 每关一个 15 秒左右的 **MP3 音频**，文件由用户提供，命名 `{puzzleId}.mp3`（1.mp3 / 2.mp3 / 3.mp3），放在 `src/assets/clips/`。
+- 仅在完成弹窗中播放，无视频画面。
 - 自动播放策略见 §4.7；提供手动播放与小重播控件。
-- MP4 建议：H.264 + AAC，短边 ≥ 720p，体积控制在单个 ≤ 3–5 MB，便于移动端加载。
+- MP3 建议：128–192 kbps，单个 ≤ 500 KB，便于移动端加载。
 
 ---
 
@@ -182,7 +183,7 @@
 ### 5.1 关卡数据（puzzle JSON）
 
 - 每关一个 JSON 文件，位于 `src/puzzles/`。
-- **权威 schema 与字段说明见 `docs/puzzle-generation.md` §10。** 要点：`puzzleId` 全局唯一、稳定，用于「再来一局」选择与 `sessionStorage` 进度键；`entries[]`（`text` / `direction` ∈ {horizontal, vertical} / `row` / `col`）是唯一权威来源，`entries[0]` 为第一条词条；`prefilled[]` 为每条词条 1–2 个提示格；`traySeed` 用于确定性重建字盘；不显示歌名，`song.title` 仅内部标识与完成弹窗揭晓用。
+- **权威 schema 与字段说明见 `docs/puzzle-generation.md` §10。** 要点：`puzzleId` 为整数编号，由知识库分配，决定文件名 / 片段名 / 加载顺序 / 再来一局选择；`entries[]`（`text` / `direction` ∈ {horizontal, vertical} / `row` / `col`）是唯一权威来源，`entries[0]` 为第一条词条；`prefilled[]` 为每条词条 1–2 个提示格；`song.clipSrc` / `clipDuration` 可省略；`traySeed` 用于确定性重建字盘；不显示歌名，`song.title` 仅内部标识与完成弹窗揭晓用。
 - 谜题由 `docs/puzzle-generation.md` 描述的生成器产出草稿，作者可手改 `entries` / `prefilled` 后重跑校验。
 
 ### 5.2 规则与派生
@@ -202,7 +203,7 @@
 
 ```ts
 interface ScoreSubmission {
-  puzzleId: string;
+  puzzleId: number;
   seconds: number;
   hintCount: number;
   clientTs: number;      // 客户端完成时间戳
@@ -217,7 +218,7 @@ interface LeaderboardEntry {
 
 // MVP：submitScore 仅写入 localStorage；getTop 返回本地或空数组
 async function submitScore(s: ScoreSubmission): Promise<void>;
-async function getTop(puzzleId: string, limit?: number): Promise<LeaderboardEntry[]>;
+async function getTop(puzzleId: number, limit?: number): Promise<LeaderboardEntry[]>;
 ```
 
 后续接入云函数 / 微信小程序云开发时，仅替换该模块实现，不动游戏逻辑。
@@ -278,7 +279,7 @@ cosmospeople/
 │  │  └─ share.ts               # 分享文案模板、站点链接
 │  └─ assets/
 │     ├─ bg/                    # 背景图
-│     └─ clips/                 # 15s MP4
+│     └─ clips/                 # 15s MP3，命名 1.mp3 / 2.mp3 / 3.mp3
 ├─ tests/                       # core/* 单元测试（Vitest）
 ├─ index.html
 ├─ vite.config.ts
@@ -292,7 +293,7 @@ cosmospeople/
 
 - GitHub 仓库 + GitHub Pages（Actions 构建并部署 `dist/`）。
 - GitHub Pages 子路径：`vite.config.ts` 的 `base` 设为 `/<repo>/`。
-- 背景图与 MP4 作为静态资源随包部署；MP4 较大时考虑后续放对象存储，本期先随包。
+- 背景图与 MP3 作为静态资源随包部署。
 
 ### 6.4 兼容性
 
@@ -302,8 +303,8 @@ cosmospeople/
 
 ### 6.5 性能
 
-- 首屏资源（不含 MP4）目标 < 500 KB gzip。
-- MP4 懒加载：仅在完成弹窗打开时才请求。
+- 首屏资源（不含 MP3）目标 < 500 KB gzip。
+- MP3 懒加载：仅在完成弹窗打开时才请求。
 - 网格与字盘渲染规模小（≤ 121 格 + 数十枚字），无性能压力。
 
 ---
@@ -337,11 +338,11 @@ cosmospeople/
 6. **步骤 5：提示功能**
    `HintButton.vue` + `hintCount`。交付：提示补空可用。
 7. **步骤 6：完成弹窗 + 片段播放 + 分享 + 再玩一次**
-   `CompletionDialog.vue`：用时、MP4 播放（自动 + 手动 + 小重播）、复制链接分享、随机再玩。交付：完整闭环（用占位 MP4）。
+   `CompletionDialog.vue`：用时、MP3 音频播放（自动 + 手动 + 小重播）、复制链接分享、随机再玩。交付：完整闭环（用占位 MP3）。
 8. **步骤 7：视觉与背景**
    接入背景图 + `multiply` + 简约样式打磨，竖屏适配。交付：视觉稿级别真机效果。
 9. **步骤 8：真实内容接入 + 联调**
-   接入用户提供的 2–3 首歌 `curatedLines`、MP4，跑校验，真机全流程测试。交付：可上线 MVP。
+   接入用户提供的 2–3 首歌 `curatedLines`、MP3，跑校验，真机全流程测试。交付：可上线 MVP。
 10. **步骤 9：部署**
     GitHub 仓库 + Pages 部署，出正式链接。
 
@@ -367,10 +368,10 @@ cosmospeople/
 
 | 项 | 数量 | 说明 |
 |---|---|---|
-| 歌词全文 | 2–3 | 已提供 3 首（一万小时 / 如果我们还在一起 / 往前）；需你校对准确性 |
-| 15s 片段 MP4 | 2–3 | 每关一个，含音轨，H.264/AAC，建议 ≤ 5 MB |
+| 歌词全文 | 3 | 已提供（一万小时=1 / 如果我们还在一起=2 / 往前=3）；每首前标 `puzzleId` 编号；需你校对准确性 |
+| 15s 片段 MP3 | 3 | 命名 `1.mp3` / `2.mp3` / `3.mp3`，128–192 kbps，单个 ≤ 500 KB，放入 `src/assets/clips/` |
 | 背景图 | 1 | 用于 `multiply` 正片叠底，简约浅色场景更佳 |
-| 完成彩蛋文案 | 2–3（可选） | 每关一句，或授权我拟稿 |
+| 完成彩蛋文案 | 3（可选） | 每关一句，或授权我拟稿 |
 | 分享站点链接 | 1 | GitHub Pages 地址（部署后确定） |
 
 歌名不再需要单独提供，从歌词文件里已带（仅内部标识与完成弹窗揭晓用）。

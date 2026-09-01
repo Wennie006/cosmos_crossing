@@ -1,10 +1,8 @@
 {
-  "puzzleId": "yiwanxiaoshi",
+  "puzzleId": 1,
   "song": {
     "title": "一万小时",
-    "artist": "宇宙人",
-    "clipSrc": "assets/clips/yiwanxiaoshi.mp4",
-    "clipDuration": 15
+    "artist": "宇宙人"
   },
   "grid": { "rows": 11, "cols": 9 },
   "entries": [

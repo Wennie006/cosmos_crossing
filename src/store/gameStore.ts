@@ -14,7 +14,7 @@ import { generateTray } from '../core/trayGenerator'
 import type { Cell } from '../core/types'
 
 export const useGameStore = defineStore('game', () => {
-  const currentPuzzleId = ref<string>(puzzleIds[0])
+  const currentPuzzleId = ref<number>(puzzleIds[0])
   const derived = computed(() => getDerivedPuzzle(currentPuzzleId.value))
 
   const state = reactive<GameState>(engine.createGameState([]))
@@ -63,7 +63,7 @@ export const useGameStore = defineStore('game', () => {
   }
 
   /** 加载指定谜题并重置状态（进度记录同步替换为新关卡的空记录）。 */
-  function loadPuzzle(id: string): void {
+  function loadPuzzle(id: number): void {
     currentPuzzleId.value = id
     freshState()
     persist()
