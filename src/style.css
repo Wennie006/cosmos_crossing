@@ -1,0 +1,50 @@
+/* 全局基础样式。完整视觉在步骤 7 处理，这里只做重置 + 主题变量骨架。 */
+
+:root {
+  /* 底色（PRD §4.11，待定稿时确认） */
+  --color-bg: #f7f5f1;
+  --color-surface: #ffffff;
+  --color-ink: #1c1a17;
+  --color-ink-soft: #6b6459;
+  --color-line: #d9d3c7;
+  --color-accent: #e8623d;
+
+  --cell-size: 32px;
+
+  font-family: system-ui, -apple-system, 'PingFang SC', 'HarmonyOS Sans SC',
+    'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--color-ink);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100svh;
+  background: var(--color-bg);
+  overflow-x: hidden;
+}
+
+#app {
+  min-height: 100svh;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
