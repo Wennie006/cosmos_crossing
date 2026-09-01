@@ -1,13 +1,28 @@
 <script setup lang="ts">
-// 步骤 0：占位页面。后续步骤在此挂载网格 / 字盘 / 计时 / 弹窗等组件。
-const buildTime = new Date().toISOString()
+import { computed, ref } from 'vue'
+import CrosswordGrid from '../components/CrosswordGrid.vue'
+import { getDerivedPuzzle, puzzleIds } from '../core/puzzleLibrary'
+
+// 步骤 2：静态网格渲染。顶部的关卡切换按钮为临时开发辅助，后续步骤移除。
+const currentId = ref(puzzleIds[0])
+const puzzle = computed(() => getDerivedPuzzle(currentId.value))
 </script>
 
 <template>
   <main class="game-page">
-    <h1>宇宙人歌词填字</h1>
-    <p class="subtitle">脚手架就绪 · 步骤 0</p>
-    <p class="meta">构建时间 {{ buildTime }}</p>
+    <nav class="dev-switch" aria-label="关卡切换（开发用）">
+      <button
+        v-for="id in puzzleIds"
+        :key="id"
+        type="button"
+        :class="{ 'is-active': id === currentId }"
+        @click="currentId = id"
+      >
+        {{ id }}
+      </button>
+    </nav>
+
+    <CrosswordGrid :puzzle="puzzle" />
   </main>
 </template>
 
@@ -17,27 +32,28 @@ const buildTime = new Date().toISOString()
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 20px;
+  padding: 20px 16px calc(24px + env(safe-area-inset-bottom));
+}
+
+.dev-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
   justify-content: center;
-  gap: 8px;
-  padding: 24px 16px calc(24px + env(safe-area-inset-bottom));
-  text-align: center;
 }
 
-h1 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-
-.subtitle {
-  margin: 0;
-  color: var(--color-ink-soft);
-}
-
-.meta {
-  margin: 0;
+.dev-switch button {
+  padding: 4px 10px;
   font-size: 12px;
+  border: 1px solid var(--color-line);
+  border-radius: 999px;
+  background: var(--color-surface);
   color: var(--color-ink-soft);
+}
+
+.dev-switch button.is-active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 </style>
