@@ -6,25 +6,25 @@
     "clipSrc": "assets/clips/ruguo-women-hai-zai-yiqi.mp4",
     "clipDuration": 15
   },
-  "grid": { "rows": 10, "cols": 9 },
+  "grid": { "rows": 11, "cols": 11 },
   "entries": [
     { "id": "A1", "text": "如果我们还在一起", "direction": "horizontal", "row": 4, "col": 0 },
     { "id": "V1", "text": "也许我还是没勇气", "direction": "vertical", "row": 2, "col": 2 },
-    { "id": "V2", "text": "知道你也在意", "direction": "vertical", "row": 0, "col": 5 },
-    { "id": "V3", "text": "不会有我们", "direction": "vertical", "row": 0, "col": 3 },
-    { "id": "A2", "text": "是最该死的能力", "direction": "horizontal", "row": 6, "col": 2 }
+    { "id": "V2", "text": "知道你也在意我", "direction": "vertical", "row": 0, "col": 5 },
+    { "id": "A2", "text": "我想要对你说", "direction": "horizontal", "row": 6, "col": 5 },
+    { "id": "V4", "text": "如果你也在这里", "direction": "vertical", "row": 4, "col": 0 }
   ],
   "prefilled": [
-    { "row": 4, "col": 3 },
+    { "row": 4, "col": 0 },
     { "row": 4, "col": 5 },
-    { "row": 6, "col": 2 },
+    { "row": 3, "col": 2 },
     { "row": 9, "col": 2 },
-    { "row": 5, "col": 5 },
-    { "row": 0, "col": 3 },
-    { "row": 6, "col": 7 }
+    { "row": 6, "col": 5 },
+    { "row": 6, "col": 10 },
+    { "row": 10, "col": 0 }
   ],
-  "distractorPool": ["月", "闷", "热", "睛", "消", "息", "梦", "泣"],
+  "distractorPool": ["遇", "见", "那", "天", "消", "息", "街", "景"],
   "successText": "",
-  "layoutSeed": 1,
-  "traySeed": 1
+  "layoutSeed": 2,
+  "traySeed": 2
 }
