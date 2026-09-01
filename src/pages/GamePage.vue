@@ -3,11 +3,12 @@ import { storeToRefs } from 'pinia'
 import CandidateTray from '../components/CandidateTray.vue'
 import CrosswordGrid from '../components/CrosswordGrid.vue'
 import GameTimer from '../components/GameTimer.vue'
+import HintButton from '../components/HintButton.vue'
 import { puzzleIds } from '../core/puzzleLibrary'
 import { elapsedMs, formatDuration } from '../core/timer'
 import { useGameStore } from '../store/gameStore'
 
-// 步骤 4：计时 + 完成判定 + 进度保留。完成弹窗（视频 / 分享 / 再来一局）为步骤 6。
+// 步骤 5：提示功能。完成弹窗（视频 / 分享 / 再来一局）为步骤 6。
 // 顶部关卡切换按钮为临时开发辅助，步骤 6 移除。
 const store = useGameStore()
 const {
@@ -61,6 +62,7 @@ const {
         >
           清除选中格
         </button>
+        <HintButton :disabled="isComplete" @hint="store.hint" />
       </div>
 
       <CandidateTray :tiles="availableTiles" @pick="store.placeTile" />

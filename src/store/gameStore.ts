@@ -91,6 +91,15 @@ export const useGameStore = defineStore('game', () => {
     engine.clearSelected(state, derived.value)
     persist()
   }
+  /** 提示：次数不限、不扣分、不影响计时——是一次普通操作。 */
+  function hint(): void {
+    if (isComplete.value) return
+    ensureStarted()
+    const applied = engine.useHint(state, derived.value)
+    if (applied) hintCount.value++
+    checkComplete()
+    persist()
+  }
 
   // ---- 只读派生 ----
   const availableTiles = computed(() => engine.availableTiles(state))
@@ -115,5 +124,6 @@ export const useGameStore = defineStore('game', () => {
     selectCell,
     placeTile,
     clearSelected,
+    hint,
   }
 })

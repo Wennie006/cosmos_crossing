@@ -139,17 +139,15 @@ export function placeTile(
   advanceSelection(state, derived)
 }
 
-/** 清空某格，其 tile 退回字盘。 */
+/** 清空某格；若格上的字关联着字盘 tile，该 tile 退回字盘。 */
 export function clearCell(
   state: GameState,
   _derived: DerivedPuzzle,
   cell: Cell,
 ): void {
   const key = cellKey(cell.row, cell.col)
-  if (state.cellTile[key]) {
-    delete state.fills[key]
-    delete state.cellTile[key]
-  }
+  if (key in state.fills) delete state.fills[key]
+  if (state.cellTile[key]) delete state.cellTile[key]
 }
 
 /** 清空当前选中格。 */
@@ -157,6 +155,45 @@ export function clearSelected(state: GameState, derived: DerivedPuzzle): void {
   if (!state.selectedKey) return
   const c = derived.cells.get(state.selectedKey)
   if (c) clearCell(state, derived, { row: c.row, col: c.col })
+}
+
+/** 网格阅读顺序（左上→右下）中第一个尚未填字的待填格；没有则返回 null。 */
+function firstEmptyBlankKey(
+  state: GameState,
+  derived: DerivedPuzzle,
+): string | null {
+  const { rows, cols } = derived.spec.grid
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const key = cellKey(r, c)
+      if (isBlank(derived, key) && !state.fills[key]) return key
+    }
+  }
+  return null
+}
+
+/**
+ * 提示：自动填入网格阅读顺序中的第一个空格，并从字盘移除一枚对应字符的 tile
+ * （字盘中该字符已被占用则直接填入、不关联 tile）。次数不限，不影响计时/完成判定
+ * 之外的任何状态。返回是否成功填入（网格已全填满则为 false）。
+ */
+export function useHint(state: GameState, derived: DerivedPuzzle): boolean {
+  const key = firstEmptyBlankKey(state, derived)
+  if (!key) return false
+
+  const answer = derived.cells.get(key)!.char
+  const used = usedTileIds(state)
+  const tile = state.tray.find((t) => t.char === answer && !used.has(t.id))
+
+  state.fills[key] = answer
+  if (tile) state.cellTile[key] = tile.id
+
+  // 选中该格，方便玩家看到提示落在哪、以及所在词条。
+  state.selectedKey = key
+  const dirs = entriesAt(derived, key).map((e) => e.direction)
+  if (!dirs.includes(state.direction)) state.direction = dirs[0]
+
+  return true
 }
 
 /** 是否所有待填格都已填且与答案一致（完成判定，步骤 4 使用）。 */

@@ -109,6 +109,51 @@ describe('availableTiles', () => {
   })
 })
 
+describe('useHint', () => {
+  it('填入阅读顺序（左上→右下）第一个空待填格', () => {
+    // yiwanxiaoshi 第 0 行唯一的格是 V4 的 (0,6)="需"，在 (4,0) 之前
+    const applied = engine.useHint(state, derived)
+    expect(applied).toBe(true)
+    expect(state.selectedKey).toBe(cellKey(0, 6))
+    expect(state.fills[cellKey(0, 6)]).toBe('需')
+  })
+
+  it('消耗字盘里一枚对应字符的 tile', () => {
+    const before = engine.availableTiles(state).length
+    engine.useHint(state, derived)
+    expect(engine.availableTiles(state).length).toBe(before - 1)
+    expect(state.cellTile[cellKey(0, 6)]).toBeTruthy()
+  })
+
+  it('反复提示直至填满，返回值与待填格数一致；再提示返回 false', () => {
+    let count = 0
+    while (engine.useHint(state, derived)) count++
+    expect(count).toBe(derived.blankCells.length)
+    expect(engine.isSolved(state, derived)).toBe(true)
+    expect(engine.useHint(state, derived)).toBe(false)
+  })
+
+  it('字盘中对应字符已被占用时，仍直接填入但不关联 tile', () => {
+    // 需要多久的时间 的「需」只有一枚 tile；先把它错放到别处占用掉
+    engine.selectCell(state, derived, V1_CELL)
+    const needTileId = engine.availableTiles(state).find((t) => t.char === '需')!.id
+    engine.placeTile(state, derived, needTileId)
+    expect(state.fills[cellKey(5, 1)]).toBe('需') // 占位（答案其实是「要」，这里只测占用）
+
+    const applied = engine.useHint(state, derived)
+    expect(applied).toBe(true)
+    expect(state.fills[cellKey(0, 6)]).toBe('需')
+    expect(state.cellTile[cellKey(0, 6)]).toBeUndefined()
+  })
+
+  it('提示后可用清除格恢复', () => {
+    engine.useHint(state, derived)
+    const key = state.selectedKey!
+    engine.clearCell(state, derived, { row: 0, col: 6 })
+    expect(state.fills[key]).toBeUndefined()
+  })
+})
+
 describe('isSolved', () => {
   it('全部按答案填入后为 true', () => {
     for (const c of derived.blankCells) {
