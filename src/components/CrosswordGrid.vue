@@ -1,10 +1,16 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { cellKey } from '../core/puzzleModel'
-import type { DerivedPuzzle } from '../core/types'
+import type { Cell, DerivedPuzzle } from '../core/types'
 
-// 步骤 2：只做静态渲染，无交互。
-const props = defineProps<{ puzzle: DerivedPuzzle }>()
+const props = defineProps<{
+  puzzle: DerivedPuzzle
+  fills: Record<string, string>
+  selectedKey: string | null
+  currentEntryKeys: Set<string>
+}>()
+
+const emit = defineEmits<{ select: [cell: Cell] }>()
 
 const rows = computed(() => props.puzzle.spec.grid.rows)
 const cols = computed(() => props.puzzle.spec.grid.cols)
@@ -12,19 +18,38 @@ const cols = computed(() => props.puzzle.spec.grid.cols)
 type CellKind = 'void' | 'blank' | 'given'
 interface RenderCell {
   key: string
+  row: number
+  col: number
   kind: CellKind
   char: string
+  selected: boolean
+  inEntry: boolean
 }
 
 const cells = computed<RenderCell[]>(() => {
   const out: RenderCell[] = []
   for (let r = 0; r < rows.value; r++) {
     for (let c = 0; c < cols.value; c++) {
-      const dc = props.puzzle.cells.get(cellKey(r, c))
-      if (!dc) out.push({ key: `${r},${c}`, kind: 'void', char: '' })
-      else if (dc.isPrefilled)
-        out.push({ key: `${r},${c}`, kind: 'given', char: dc.char })
-      else out.push({ key: `${r},${c}`, kind: 'blank', char: '' })
+      const key = cellKey(r, c)
+      const dc = props.puzzle.cells.get(key)
+      let kind: CellKind = 'void'
+      let char = ''
+      if (dc?.isPrefilled) {
+        kind = 'given'
+        char = dc.char
+      } else if (dc) {
+        kind = 'blank'
+        char = props.fills[key] ?? ''
+      }
+      out.push({
+        key,
+        row: r,
+        col: c,
+        kind,
+        char,
+        selected: key === props.selectedKey,
+        inEntry: props.currentEntryKeys.has(key),
+      })
     }
   }
   return out
@@ -32,20 +57,22 @@ const cells = computed<RenderCell[]>(() => {
 </script>
 
 <template>
-  <div
-    class="grid"
-    :style="{ '--cols': cols }"
-    role="grid"
-    aria-label="填字网格"
-  >
-    <div
-      v-for="cell in cells"
-      :key="cell.key"
-      class="cell"
-      :class="`cell--${cell.kind}`"
-    >
-      <span v-if="cell.char" class="cell__char">{{ cell.char }}</span>
-    </div>
+  <div class="grid" :style="{ '--cols': cols }" role="grid" aria-label="填字网格">
+    <template v-for="cell in cells" :key="cell.key">
+      <button
+        v-if="cell.kind === 'blank'"
+        type="button"
+        class="cell cell--blank"
+        :class="{ 'is-selected': cell.selected, 'in-entry': cell.inEntry, 'is-filled': !!cell.char }"
+        :aria-label="`第 ${cell.row + 1} 行第 ${cell.col + 1} 列`"
+        @click="emit('select', { row: cell.row, col: cell.col })"
+      >
+        <span v-if="cell.char" class="cell__char">{{ cell.char }}</span>
+      </button>
+      <div v-else class="cell" :class="`cell--${cell.kind}`">
+        <span v-if="cell.char" class="cell__char">{{ cell.char }}</span>
+      </div>
+    </template>
   </div>
 </template>
 
@@ -69,6 +96,8 @@ const cells = computed<RenderCell[]>(() => {
   font-size: calc(var(--cell) * 0.5);
   line-height: 1;
   user-select: none;
+  padding: 0;
+  margin: 0;
 }
 
 .cell--void {
@@ -79,6 +108,18 @@ const cells = computed<RenderCell[]>(() => {
   background: var(--color-surface);
   border: 1px solid var(--color-line);
   border-radius: 3px;
+  color: var(--color-ink);
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cell--blank.in-entry {
+  background: #fff8ec;
+}
+
+.cell--blank.is-selected {
+  border-color: var(--color-accent);
+  box-shadow: inset 0 0 0 1px var(--color-accent);
 }
 
 .cell--given {
