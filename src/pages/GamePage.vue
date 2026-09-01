@@ -2,14 +2,24 @@
 import { storeToRefs } from 'pinia'
 import CandidateTray from '../components/CandidateTray.vue'
 import CrosswordGrid from '../components/CrosswordGrid.vue'
+import GameTimer from '../components/GameTimer.vue'
 import { puzzleIds } from '../core/puzzleLibrary'
+import { elapsedMs, formatDuration } from '../core/timer'
 import { useGameStore } from '../store/gameStore'
 
-// 步骤 3：可玩（选格 / 填字 / 改字 / 清除 / 方向切换），不判定完成。
+// 步骤 4：计时 + 完成判定 + 进度保留。完成弹窗（视频 / 分享 / 再来一局）为步骤 6。
 // 顶部关卡切换按钮为临时开发辅助，步骤 6 移除。
 const store = useGameStore()
-const { derived, state, availableTiles, currentEntryKeys, currentPuzzleId } =
-  storeToRefs(store)
+const {
+  derived,
+  state,
+  timer,
+  availableTiles,
+  currentEntry,
+  currentEntryKeys,
+  currentPuzzleId,
+  isComplete,
+} = storeToRefs(store)
 </script>
 
 <template>
@@ -26,26 +36,35 @@ const { derived, state, availableTiles, currentEntryKeys, currentPuzzleId } =
       </button>
     </nav>
 
-    <CrosswordGrid
-      :puzzle="derived"
-      :fills="state.fills"
-      :selected-key="state.selectedKey"
-      :current-entry-keys="currentEntryKeys"
-      @select="store.selectCell"
-    />
+    <GameTimer :timer="timer" />
 
-    <div class="controls">
-      <button
-        type="button"
-        class="clear-btn"
-        :disabled="!state.selectedKey"
-        @click="store.clearSelected"
-      >
-        清除选中格
-      </button>
+    <p v-if="isComplete" class="done">
+      完成！用时 {{ formatDuration(elapsedMs(timer, 0)) }}
+    </p>
+
+    <div class="board" :class="{ 'is-locked': isComplete }">
+      <CrosswordGrid
+        :puzzle="derived"
+        :fills="state.fills"
+        :selected-key="state.selectedKey"
+        :current-entry-keys="currentEntryKeys"
+        :current-entry="currentEntry"
+        @select="store.selectCell"
+      />
+
+      <div class="controls">
+        <button
+          type="button"
+          class="clear-btn"
+          :disabled="!state.selectedKey"
+          @click="store.clearSelected"
+        >
+          清除选中格
+        </button>
+      </div>
+
+      <CandidateTray :tiles="availableTiles" @pick="store.placeTile" />
     </div>
-
-    <CandidateTray :tiles="availableTiles" @pick="store.placeTile" />
   </main>
 </template>
 
@@ -55,7 +74,7 @@ const { derived, state, availableTiles, currentEntryKeys, currentPuzzleId } =
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 12px;
   padding: 16px 16px calc(20px + env(safe-area-inset-bottom));
 }
 
@@ -78,6 +97,24 @@ const { derived, state, availableTiles, currentEntryKeys, currentPuzzleId } =
 .dev-switch button.is-active {
   border-color: var(--color-accent);
   color: var(--color-accent);
+}
+
+.done {
+  margin: 0;
+  font-size: 15px;
+  color: var(--color-accent);
+}
+
+.board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.board.is-locked {
+  pointer-events: none;
+  opacity: 0.65;
 }
 
 .controls {

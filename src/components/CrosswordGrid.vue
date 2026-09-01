@@ -1,19 +1,33 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { cellKey } from '../core/puzzleModel'
-import type { Cell, DerivedPuzzle } from '../core/types'
+import type { Cell, DerivedEntry, DerivedPuzzle } from '../core/types'
 
 const props = defineProps<{
   puzzle: DerivedPuzzle
   fills: Record<string, string>
   selectedKey: string | null
   currentEntryKeys: Set<string>
+  currentEntry: DerivedEntry | null
 }>()
 
 const emit = defineEmits<{ select: [cell: Cell] }>()
 
 const rows = computed(() => props.puzzle.spec.grid.rows)
 const cols = computed(() => props.puzzle.spec.grid.cols)
+
+// 当前词条的整体外框：一条直的横向或纵向词条，外框就是它的包围矩形。
+const outline = computed(() => {
+  const e = props.currentEntry
+  if (!e) return null
+  const len = e.chars.length
+  return {
+    row: e.row,
+    col: e.col,
+    w: e.direction === 'horizontal' ? len : 1,
+    h: e.direction === 'vertical' ? len : 1,
+  }
+})
 
 type CellKind = 'void' | 'blank' | 'given'
 interface RenderCell {
@@ -73,6 +87,18 @@ const cells = computed<RenderCell[]>(() => {
         <span v-if="cell.char" class="cell__char">{{ cell.char }}</span>
       </div>
     </template>
+
+    <div
+      v-if="outline"
+      class="entry-outline"
+      :style="{
+        '--o-row': outline.row,
+        '--o-col': outline.col,
+        '--o-w': outline.w,
+        '--o-h': outline.h,
+      }"
+      aria-hidden="true"
+    />
   </div>
 </template>
 
@@ -81,10 +107,28 @@ const cells = computed<RenderCell[]>(() => {
   --gap: 2px;
   --grid-w: min(calc(100vw - 32px), 440px);
   --cell: calc((var(--grid-w) - (var(--cols) - 1) * var(--gap)) / var(--cols));
+  position: relative;
   display: grid;
   grid-template-columns: repeat(var(--cols), var(--cell));
   gap: var(--gap);
   width: var(--grid-w);
+}
+
+.entry-outline {
+  position: absolute;
+  pointer-events: none;
+  left: calc(var(--o-col) * (var(--cell) + var(--gap)) - 2px);
+  top: calc(var(--o-row) * (var(--cell) + var(--gap)) - 2px);
+  width: calc(var(--o-w) * var(--cell) + (var(--o-w) - 1) * var(--gap) + 4px);
+  height: calc(var(--o-h) * var(--cell) + (var(--o-h) - 1) * var(--gap) + 4px);
+  border: 2px solid var(--color-accent);
+  border-radius: 6px;
+  box-sizing: border-box;
+  transition:
+    left 0.12s ease,
+    top 0.12s ease,
+    width 0.12s ease,
+    height 0.12s ease;
 }
 
 .cell {
