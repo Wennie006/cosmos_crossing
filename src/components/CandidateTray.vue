@@ -41,14 +41,15 @@ const emit = defineEmits<{ pick: [tileId: string] }>()
   font-size: 20px;
   line-height: 1;
   border: 1px solid var(--color-line);
-  border-radius: 6px;
+  border-radius: 8px;
   background: var(--color-surface);
   color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(34, 50, 63, 0.08);
   -webkit-tap-highlight-color: transparent;
 }
 
 .tile:active {
-  background: #f0ebe1;
+  background: var(--color-tile-active);
 }
 
 .tray__empty {

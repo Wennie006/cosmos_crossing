@@ -1,17 +1,20 @@
-/* 全局基础样式。完整视觉在步骤 7 处理，这里只做重置 + 主题变量骨架。 */
+/* 全局基础样式 + 主题变量。配色取自背景图（复古色块）。 */
 
 :root {
-  /* 底色（PRD §4.11，待定稿时确认） */
-  --color-bg: #f7f5f1;
-  --color-surface: #ffffff;
-  --color-ink: #1c1a17;
-  --color-ink-soft: #6b6459;
-  --color-line: #d9d3c7;
-  --color-accent: #e8623d;
+  /* 取自背景图 */
+  --color-bg: #efe8d9; /* 纸底米色 */
+  --color-surface: #fbf7ee; /* 格子 / 卡片：比底色更亮的暖白 */
+  --color-ink: #22323f; /* 藏青，正文深色 */
+  --color-ink-soft: #7c7160; /* 暖灰棕，次级文字 */
+  --color-line: #d7cdb8; /* 暖色描边 */
+  --color-accent: #9d3c2f; /* 砖红，主色 */
+  --color-given-bg: #e7dcc2; /* 提示字格底 */
+  --color-entry-tint: #f5e7c6; /* 当前词条高亮，浅芥黄 */
+  --color-tile-active: #ece1c9; /* 字盘按下 */
+  --color-scrim: rgba(34, 50, 63, 0.42); /* 弹窗遮罩 */
 
-  --cell-size: 32px;
-
-  font-family: system-ui, -apple-system, 'PingFang SC', 'HarmonyOS Sans SC',
+  font-family:
+    system-ui, -apple-system, 'PingFang SC', 'HarmonyOS Sans SC',
     'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif;
   font-size: 16px;
   line-height: 1.5;
@@ -40,7 +43,21 @@ body {
 }
 
 #app {
+  position: relative;
   min-height: 100svh;
+}
+
+/* 背景层：色块图极低透明度 + multiply 到纸底，只作氛围、不抢内容。 */
+.app-bg {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--app-bg-image);
+  background-size: cover;
+  background-position: center top;
+  opacity: 0.09;
+  mix-blend-mode: multiply;
 }
 
 button {

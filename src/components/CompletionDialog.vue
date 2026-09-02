@@ -121,7 +121,7 @@ async function share(): Promise<void> {
   align-items: center;
   justify-content: center;
   padding: 24px;
-  background: rgba(28, 26, 23, 0.45);
+  background: var(--color-scrim);
   z-index: 100;
 }
 
@@ -132,7 +132,7 @@ async function share(): Promise<void> {
   border-radius: 16px;
   padding: 28px 22px 22px;
   text-align: center;
-  box-shadow: 0 12px 40px rgba(28, 26, 23, 0.25);
+  box-shadow: 0 16px 44px rgba(34, 50, 63, 0.28);
 }
 
 .dialog__close {
@@ -199,7 +199,7 @@ async function share(): Promise<void> {
 .btn--primary {
   border-color: var(--color-accent);
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-surface);
 }
 
 .toast {
@@ -210,8 +210,8 @@ async function share(): Promise<void> {
   margin: 0;
   padding: 6px 14px;
   font-size: 12px;
-  color: #fff;
-  background: rgba(28, 26, 23, 0.85);
+  color: var(--color-surface);
+  background: rgba(34, 50, 63, 0.9);
   border-radius: 999px;
   white-space: nowrap;
 }

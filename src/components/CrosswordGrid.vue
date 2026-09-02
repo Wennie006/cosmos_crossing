@@ -151,14 +151,15 @@ const cells = computed<RenderCell[]>(() => {
 .cell--blank {
   background: var(--color-surface);
   border: 1px solid var(--color-line);
-  border-radius: 3px;
+  border-radius: 4px;
   color: var(--color-ink);
   font-family: inherit;
+  box-shadow: 0 1px 2px rgba(34, 50, 63, 0.07);
   -webkit-tap-highlight-color: transparent;
 }
 
 .cell--blank.in-entry {
-  background: #fff8ec;
+  background: var(--color-entry-tint);
 }
 
 .cell--blank.is-selected {
@@ -167,10 +168,11 @@ const cells = computed<RenderCell[]>(() => {
 }
 
 .cell--given {
-  background: #ece4d5;
+  background: var(--color-given-bg);
   border: 1px solid var(--color-line);
-  border-radius: 3px;
+  border-radius: 4px;
   color: var(--color-ink);
+  box-shadow: 0 1px 2px rgba(34, 50, 63, 0.07);
 }
 
 /* 提示字与用户填入的字：字体完全一致，仅靠底色区分 */

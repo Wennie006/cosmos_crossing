@@ -98,12 +98,15 @@ function again(): void {
 
 <style scoped>
 .game-page {
+  position: relative;
+  z-index: 1;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
-  padding: 16px 16px calc(20px + env(safe-area-inset-bottom));
+  gap: 14px;
+  padding: calc(18px + env(safe-area-inset-top)) 16px
+    calc(24px + env(safe-area-inset-bottom));
 }
 
 .dev-switch {
@@ -133,7 +136,7 @@ function again(): void {
   border: 1px solid var(--color-accent);
   border-radius: 999px;
   background: var(--color-accent);
-  color: #fff;
+  color: var(--color-surface);
 }
 
 .board {
