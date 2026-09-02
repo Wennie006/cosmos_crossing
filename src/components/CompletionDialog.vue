@@ -11,7 +11,6 @@ const props = defineProps<{
 const emit = defineEmits<{ close: []; again: [] }>()
 
 const clipUrl = computed(() => clipUrlOf(props.puzzle.spec))
-const clipSeconds = computed(() => clipDurationOf(props.puzzle.spec))
 const successText = computed(() => props.puzzle.spec.successText?.trim() ?? '')
 
 const audioEl = ref<HTMLAudioElement | null>(null)
@@ -19,10 +18,16 @@ const isPlaying = ref(false)
 const hasPlayed = ref(false)
 const shareToast = ref(false)
 
-// 片段可能是完整歌（15s 版未上传时）：播到 clipSeconds 硬停并回到起点。
+// 正常情况片段已是裁好的短音频（十几到二十几秒），整段播完即可。
+// 仅当文件异常长（比如忘了裁）时才按 clipDuration（默认 15s）兜底截断。
+const MAX_UNTRIMMED_SECONDS = 40
 function onTimeUpdate(): void {
   const a = audioEl.value
-  if (a && a.currentTime >= clipSeconds.value) {
+  if (!a) return
+  const isShortClip =
+    Number.isFinite(a.duration) && a.duration <= MAX_UNTRIMMED_SECONDS
+  const cap = isShortClip ? a.duration : clipDurationOf(props.puzzle.spec)
+  if (a.currentTime >= cap) {
     a.pause()
     a.currentTime = 0
   }
