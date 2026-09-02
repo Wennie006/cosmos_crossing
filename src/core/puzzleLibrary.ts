@@ -9,6 +9,13 @@ const modules = import.meta.glob<{ default: PuzzleSpec }>('../puzzles/*.json', {
   eager: true,
 })
 
+// 片段音频：由 Vite 打包，URL 带 hash。文件由用户放入 src/assets/clips/{puzzleId}.mp3。
+const clipUrls = import.meta.glob<string>('../assets/clips/*.mp3', {
+  eager: true,
+  query: '?url',
+  import: 'default',
+})
+
 const specs: PuzzleSpec[] = Object.values(modules)
   .map((m) => m.default)
   .sort((a, b) => a.puzzleId - b.puzzleId)
@@ -31,6 +38,20 @@ export function getDerivedPuzzle(id: number): DerivedPuzzle {
 /** 片段音频路径：优先用 song.clipSrc，否则默认 assets/clips/{puzzleId}.mp3。 */
 export function clipSrcOf(spec: PuzzleSpec): string {
   return spec.song.clipSrc ?? `assets/clips/${spec.puzzleId}.mp3`
+}
+
+/** 片段音频打包后的可用 URL；文件不存在时返回 null。 */
+export function clipUrlOf(spec: PuzzleSpec): string | null {
+  const suffix = `/${spec.puzzleId}.mp3`
+  for (const [path, url] of Object.entries(clipUrls)) {
+    if (path.endsWith(suffix)) return url
+  }
+  return null
+}
+
+/** 片段时长（秒），默认 15。 */
+export function clipDurationOf(spec: PuzzleSpec): number {
+  return spec.song.clipDuration ?? 15
 }
 
 /** 首次进入：均匀随机选一关。 */

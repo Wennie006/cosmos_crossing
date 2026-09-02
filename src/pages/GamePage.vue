@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
+import { ref, watch } from 'vue'
 import CandidateTray from '../components/CandidateTray.vue'
+import CompletionDialog from '../components/CompletionDialog.vue'
 import CrosswordGrid from '../components/CrosswordGrid.vue'
 import GameTimer from '../components/GameTimer.vue'
 import HintButton from '../components/HintButton.vue'
@@ -8,8 +10,7 @@ import { puzzleIds } from '../core/puzzleLibrary'
 import { elapsedMs, formatDuration } from '../core/timer'
 import { useGameStore } from '../store/gameStore'
 
-// 步骤 5：提示功能。完成弹窗（视频 / 分享 / 再来一局）为步骤 6。
-// 顶部关卡切换按钮为临时开发辅助，步骤 6 移除。
+// 步骤 6：完成弹窗 + MP3 片段播放 + 复制链接分享 + 再玩一次。
 const store = useGameStore()
 const {
   derived,
@@ -21,11 +22,23 @@ const {
   currentPuzzleId,
   isComplete,
 } = storeToRefs(store)
+
+const isDev = import.meta.env.DEV
+
+// 完成弹窗：完成时出现，可关闭；关闭后停留在只读网格 + 一个「再玩一次」按钮。
+const dialogDismissed = ref(false)
+watch(isComplete, (done) => {
+  if (!done) dialogDismissed.value = false
+})
+
+function again(): void {
+  store.playAgain()
+}
 </script>
 
 <template>
   <main class="game-page">
-    <nav class="dev-switch" aria-label="关卡切换（开发用）">
+    <nav v-if="isDev" class="dev-switch" aria-label="关卡切换（仅开发）">
       <button
         v-for="id in puzzleIds"
         :key="id"
@@ -39,9 +52,14 @@ const {
 
     <GameTimer :timer="timer" />
 
-    <p v-if="isComplete" class="done">
-      完成！用时 {{ formatDuration(elapsedMs(timer, 0)) }}
-    </p>
+    <button
+      v-if="isComplete && dialogDismissed"
+      type="button"
+      class="again-btn"
+      @click="again"
+    >
+      再玩一次
+    </button>
 
     <div class="board" :class="{ 'is-locked': isComplete }">
       <CrosswordGrid
@@ -56,7 +74,7 @@ const {
       <div class="controls">
         <button
           type="button"
-          class="clear-btn"
+          class="ctrl-btn"
           :disabled="!state.selectedKey"
           @click="store.clearSelected"
         >
@@ -67,6 +85,14 @@ const {
 
       <CandidateTray :tiles="availableTiles" @pick="store.placeTile" />
     </div>
+
+    <CompletionDialog
+      v-if="isComplete && !dialogDismissed"
+      :puzzle="derived"
+      :duration-text="formatDuration(elapsedMs(timer, 0))"
+      @close="dialogDismissed = true"
+      @again="again"
+    />
   </main>
 </template>
 
@@ -101,10 +127,13 @@ const {
   color: var(--color-accent);
 }
 
-.done {
-  margin: 0;
-  font-size: 15px;
-  color: var(--color-accent);
+.again-btn {
+  padding: 8px 22px;
+  font-size: 14px;
+  border: 1px solid var(--color-accent);
+  border-radius: 999px;
+  background: var(--color-accent);
+  color: #fff;
 }
 
 .board {
@@ -124,7 +153,7 @@ const {
   gap: 8px;
 }
 
-.clear-btn {
+.ctrl-btn {
   padding: 6px 14px;
   font-size: 13px;
   border: 1px solid var(--color-line);
@@ -133,7 +162,7 @@ const {
   color: var(--color-ink-soft);
 }
 
-.clear-btn:disabled {
+.ctrl-btn:disabled {
   opacity: 0.4;
 }
 </style>

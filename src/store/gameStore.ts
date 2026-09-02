@@ -5,6 +5,7 @@ import type { GameState } from '../core/gameEngine'
 import {
   getDerivedPuzzle,
   pickInitialPuzzle,
+  pickNextPuzzle,
   puzzleIds,
 } from '../core/puzzleLibrary'
 import { loadProgress, saveProgress } from '../core/progress'
@@ -69,6 +70,11 @@ export const useGameStore = defineStore('game', () => {
     persist()
   }
 
+  /** 再玩一次：随机加载一个 puzzleId 不等于当前关的谜题。 */
+  function playAgain(): void {
+    loadPuzzle(pickNextPuzzle(currentPuzzleId.value))
+  }
+
   // 完成即终点：完成后网格与字盘不再响应（完成弹窗在步骤 6）。
   const isComplete = computed(() => timer.finishEpoch != null)
 
@@ -121,6 +127,7 @@ export const useGameStore = defineStore('game', () => {
     currentEntryKeys,
     isComplete,
     loadPuzzle,
+    playAgain,
     selectCell,
     placeTile,
     clearSelected,
