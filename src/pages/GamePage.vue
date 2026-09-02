@@ -6,11 +6,10 @@ import CompletionDialog from '../components/CompletionDialog.vue'
 import CrosswordGrid from '../components/CrosswordGrid.vue'
 import GameTimer from '../components/GameTimer.vue'
 import HintButton from '../components/HintButton.vue'
-import { puzzleIds } from '../core/puzzleLibrary'
 import { elapsedMs, formatDuration } from '../core/timer'
 import { useGameStore } from '../store/gameStore'
 
-// 步骤 6：完成弹窗 + MP3 片段播放 + 复制链接分享 + 再玩一次。
+// 用户视角：唯一入口是「首次进入随机选关」+「再玩一次」。无关卡切换 UI。
 const store = useGameStore()
 const {
   derived,
@@ -19,11 +18,8 @@ const {
   availableTiles,
   currentEntry,
   currentEntryKeys,
-  currentPuzzleId,
   isComplete,
 } = storeToRefs(store)
-
-const isDev = import.meta.env.DEV
 
 // 完成弹窗：完成时出现，可关闭；关闭后停留在只读网格 + 一个「再玩一次」按钮。
 const dialogDismissed = ref(false)
@@ -38,18 +34,6 @@ function again(): void {
 
 <template>
   <main class="game-page">
-    <nav v-if="isDev" class="dev-switch" aria-label="关卡切换（仅开发）">
-      <button
-        v-for="id in puzzleIds"
-        :key="id"
-        type="button"
-        :class="{ 'is-active': id === currentPuzzleId }"
-        @click="store.loadPuzzle(id)"
-      >
-        {{ id }}
-      </button>
-    </nav>
-
     <GameTimer :timer="timer" />
 
     <button
@@ -107,27 +91,6 @@ function again(): void {
   gap: 14px;
   padding: calc(18px + env(safe-area-inset-top)) 16px
     calc(24px + env(safe-area-inset-bottom));
-}
-
-.dev-switch {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-
-.dev-switch button {
-  padding: 4px 10px;
-  font-size: 12px;
-  border: 1px solid var(--color-line);
-  border-radius: 999px;
-  background: var(--color-surface);
-  color: var(--color-ink-soft);
-}
-
-.dev-switch button.is-active {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
 }
 
 .again-btn {

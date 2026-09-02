@@ -28,10 +28,20 @@ export const useGameStore = defineStore('game', () => {
     hintCount.value = 0
   }
 
-  // 初始化：优先恢复 sessionStorage 进度（同一 puzzleId 才恢复）；
-  // 否则按 docs/puzzle-generation.md §11 均匀随机选一关（首次进入）。
+  // 仅开发：?p=<id> 强制加载指定关卡，方便调试（生产忽略）。
+  const devForcedId =
+    import.meta.env.DEV && typeof window !== 'undefined'
+      ? Number(new URLSearchParams(window.location.search).get('p'))
+      : Number.NaN
+
+  // 初始化：?p 优先（仅开发）→ 恢复 sessionStorage 进度（同一 puzzleId 才恢复）
+  // → 按 docs/puzzle-generation.md §11 均匀随机选一关（首次进入）。
   const saved = loadProgress()
-  if (saved && puzzleIds.includes(saved.puzzleId)) {
+  if (Number.isInteger(devForcedId) && puzzleIds.includes(devForcedId)) {
+    currentPuzzleId.value = devForcedId
+    freshState()
+    persist()
+  } else if (saved && puzzleIds.includes(saved.puzzleId)) {
     currentPuzzleId.value = saved.puzzleId
     Object.assign(
       state,
