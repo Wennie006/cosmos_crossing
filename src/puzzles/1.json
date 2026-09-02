@@ -4,26 +4,92 @@
     "title": "一万小时",
     "artist": "宇宙人"
   },
-  "grid": { "rows": 11, "cols": 9 },
+  "grid": {
+    "rows": 11,
+    "cols": 9
+  },
   "entries": [
-    { "id": "A1", "text": "让我完成有你的世界", "direction": "horizontal", "row": 4, "col": 0 },
-    { "id": "V1", "text": "我要变成你的树", "direction": "vertical", "row": 4, "col": 1 },
-    { "id": "V2", "text": "变成了终点", "direction": "vertical", "row": 3, "col": 3 },
-    { "id": "V3", "text": "没有你的世界", "direction": "vertical", "row": 2, "col": 5 },
-    { "id": "V4", "text": "需要多久的时间", "direction": "vertical", "row": 0, "col": 6 }
+    {
+      "id": "A1",
+      "text": "让我完成有你的世界",
+      "direction": "horizontal",
+      "row": 4,
+      "col": 0
+    },
+    {
+      "id": "V1",
+      "text": "我要变成你的树",
+      "direction": "vertical",
+      "row": 4,
+      "col": 1
+    },
+    {
+      "id": "V2",
+      "text": "变成了终点",
+      "direction": "vertical",
+      "row": 3,
+      "col": 3
+    },
+    {
+      "id": "V3",
+      "text": "没有你的世界",
+      "direction": "vertical",
+      "row": 2,
+      "col": 5
+    },
+    {
+      "id": "V4",
+      "text": "需要多久的时间",
+      "direction": "vertical",
+      "row": 0,
+      "col": 6
+    }
   ],
   "prefilled": [
-    { "row": 4, "col": 1 },
-    { "row": 4, "col": 6 },
-    { "row": 10, "col": 1 },
-    { "row": 3, "col": 6 },
-    { "row": 3, "col": 3 },
-    { "row": 6, "col": 3 },
-    { "row": 2, "col": 5 },
-    { "row": 7, "col": 5 }
+    {
+      "row": 4,
+      "col": 1
+    },
+    {
+      "row": 4,
+      "col": 6
+    },
+    {
+      "row": 10,
+      "col": 1
+    },
+    {
+      "row": 3,
+      "col": 6
+    },
+    {
+      "row": 3,
+      "col": 3
+    },
+    {
+      "row": 6,
+      "col": 3
+    },
+    {
+      "row": 2,
+      "col": 5
+    },
+    {
+      "row": 7,
+      "col": 5
+    }
   ],
-  "distractorPool": ["山", "海", "沙", "浪", "暖", "河", "草", "原"],
-  "successText": "",
+  "distractorPool": [
+    "山",
+    "海",
+    "沙",
+    "浪",
+    "暖",
+    "河",
+    "草",
+    "原"
+  ],
+  "successText": "宇宙友你在❤006大卖！",
   "layoutSeed": 1,
   "traySeed": 1
 }

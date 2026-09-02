@@ -4,28 +4,103 @@
     "title": "往前",
     "artist": "宇宙人"
   },
-  "grid": { "rows": 10, "cols": 10 },
+  "grid": {
+    "rows": 10,
+    "cols": 10
+  },
   "entries": [
-    { "id": "A1", "text": "永远有你在我身边", "direction": "horizontal", "row": 5, "col": 2 },
-    { "id": "V1", "text": "没有后路退", "direction": "vertical", "row": 4, "col": 4 },
-    { "id": "V2", "text": "我只能往前", "direction": "vertical", "row": 5, "col": 7 },
-    { "id": "V3", "text": "每天和自己在告别", "direction": "vertical", "row": 0, "col": 6 },
-    { "id": "V4", "text": "挣脱了边界", "direction": "vertical", "row": 2, "col": 9 },
-    { "id": "A2", "text": "在害怕在退却", "direction": "horizontal", "row": 8, "col": 0 }
+    {
+      "id": "A1",
+      "text": "永远有你在我身边",
+      "direction": "horizontal",
+      "row": 5,
+      "col": 2
+    },
+    {
+      "id": "V1",
+      "text": "没有后路退",
+      "direction": "vertical",
+      "row": 4,
+      "col": 4
+    },
+    {
+      "id": "V2",
+      "text": "我只能往前",
+      "direction": "vertical",
+      "row": 5,
+      "col": 7
+    },
+    {
+      "id": "V3",
+      "text": "每天和自己在告别",
+      "direction": "vertical",
+      "row": 0,
+      "col": 6
+    },
+    {
+      "id": "V4",
+      "text": "挣脱了边界",
+      "direction": "vertical",
+      "row": 2,
+      "col": 9
+    },
+    {
+      "id": "A2",
+      "text": "在害怕在退却",
+      "direction": "horizontal",
+      "row": 8,
+      "col": 0
+    }
   ],
   "prefilled": [
-    { "row": 5, "col": 4 },
-    { "row": 5, "col": 9 },
-    { "row": 8, "col": 4 },
-    { "row": 6, "col": 7 },
-    { "row": 9, "col": 7 },
-    { "row": 0, "col": 6 },
-    { "row": 7, "col": 6 },
-    { "row": 2, "col": 9 },
-    { "row": 8, "col": 5 }
+    {
+      "row": 5,
+      "col": 4
+    },
+    {
+      "row": 5,
+      "col": 9
+    },
+    {
+      "row": 8,
+      "col": 4
+    },
+    {
+      "row": 6,
+      "col": 7
+    },
+    {
+      "row": 9,
+      "col": 7
+    },
+    {
+      "row": 0,
+      "col": 6
+    },
+    {
+      "row": 7,
+      "col": 6
+    },
+    {
+      "row": 2,
+      "col": 9
+    },
+    {
+      "row": 8,
+      "col": 5
+    }
   ],
-  "distractorPool": ["慢", "忘", "空", "丽", "云", "渺", "唱", "悬"],
-  "successText": "",
+  "distractorPool": [
+    "慢",
+    "忘",
+    "空",
+    "丽",
+    "云",
+    "渺",
+    "唱",
+    "悬"
+  ],
+  "successText": "宇宙友你在❤006大卖！",
   "layoutSeed": 1,
   "traySeed": 1
 }
